@@ -19,20 +19,30 @@ Generated tokens are sent back to users, which they must include in the headers 
 @Component
 public class JWTGenerator {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    public String generateToken(Authentication authentication) {
+
+    public TokenPair generateTokens(Authentication authentication) {
         String username = authentication.getName();
         Date currentDate = new Date();
-        Date expireDate = new Date(currentDate.getTime() + SecurityConstants.JWT_EXPIRATION);
 
-        String token = Jwts.builder()
+        // Generate access token
+        Date accessTokenExpiry = new Date(currentDate.getTime() + SecurityConstants.JWT_EXPIRATION * 1000);
+        String accessToken = Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt( new Date())
-                .setExpiration(expireDate)
-                .signWith(key,SignatureAlgorithm.HS512)
+                .setIssuedAt(currentDate)
+                .setExpiration(accessTokenExpiry)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
-        System.out.println("New token :");
-        System.out.println(token);
-        return token;
+
+        // Generate refresh token
+        Date refreshTokenExpiry = new Date(currentDate.getTime() + SecurityConstants.REFRESH_TOKEN_EXPIRATION * 1000);
+        String refreshToken = Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(currentDate)
+                .setExpiration(refreshTokenExpiry)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        return new TokenPair(accessToken, refreshToken);
     }
     public String getUsernameFromJWT(String token){
         Claims claims = Jwts.parserBuilder()

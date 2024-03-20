@@ -5,5 +5,6 @@ package com.vesa.securityTeddy.security;
 This might include the secret key used to sign JWT tokens, the token expiration time, the token prefix (e.g., "Bearer "),
 and the header string where the token is expected to be found in HTTP requests (e.g., "Authorization").*/
 public class SecurityConstants{
-    public static final long JWT_EXPIRATION = 70000;
+    public static final long JWT_EXPIRATION = 30;
+    public static final long REFRESH_TOKEN_EXPIRATION = 70;
 }

@@ -6,6 +6,7 @@ import com.vesa.securityTeddy.service.PokemonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +21,7 @@ public class PokemonController {
     }
 
     @GetMapping("pokemon")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PokemonResponse> getPokemons(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize

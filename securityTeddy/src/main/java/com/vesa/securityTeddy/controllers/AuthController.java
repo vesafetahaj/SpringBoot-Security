@@ -8,6 +8,7 @@ import com.vesa.securityTeddy.models.UserEntity;
 import com.vesa.securityTeddy.repository.RoleRepository;
 import com.vesa.securityTeddy.repository.UserRepository;
 import com.vesa.securityTeddy.security.JWTGenerator;
+import com.vesa.securityTeddy.security.TokenPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,15 +44,20 @@ public class AuthController {
         this.jwtGenerator = jwtGenerator;
     }
     @PostMapping("login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDto loginDto){
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getUsername(),
                         loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtGenerator.generateToken(authentication);
-        return new ResponseEntity<>(new AuthResponseDTO(token), HttpStatus.OK);
+
+        // Generate tokens
+        TokenPair tokenPair = jwtGenerator.generateTokens(authentication);
+
+        // Return tokens in response
+        return ResponseEntity.ok(new AuthResponseDTO(tokenPair.getAccessToken(), tokenPair.getRefreshToken()));
     }
+
 
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
@@ -70,4 +76,5 @@ public class AuthController {
 
         return new ResponseEntity<>("User registered success!", HttpStatus.OK);
     }
+
 }
